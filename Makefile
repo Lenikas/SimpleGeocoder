@@ -1,4 +1,4 @@
-CODE = final_project
+CODE = geocoder
 TESTS = tests
 
 ALL = $(CODE) $(TESTS)
