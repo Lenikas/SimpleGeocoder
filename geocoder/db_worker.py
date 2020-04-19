@@ -1,4 +1,5 @@
 import pathlib
+from typing import Any, List, Union
 
 import numpy
 from geocoder.address_view import Address
@@ -14,7 +15,7 @@ from geocoder.osm_parser import OsmParser
 
 class DbWorker:
     @staticmethod
-    def prepare_db(parser: OsmParser):
+    def prepare_db(parser: OsmParser) -> None:
         """Наполняем базу данных"""
         with create_session() as session:
             with open(str(parser.file_name), encoding='utf-8') as f:
@@ -27,7 +28,9 @@ class DbWorker:
                     if point_data is not None:
                         session.add(
                             PointToCoordinate(
-                                point_data.point, point_data.latitude, point_data.longitude
+                                point_data.point,
+                                point_data.latitude,
+                                point_data.longitude,
                             )
                         )
                         continue
@@ -38,25 +41,28 @@ class DbWorker:
                                 address_data.city,
                                 address_data.street,
                                 address_data.number,
-                                address_data.references,
+                                address_data.points,
                             )
                         )
                         continue
                 session.commit()
             for item in session.query(AddressToPoints).all():
-                coordinates = DbWorker.calculate_coordinates(item.city, item.street, item.number)
-                session.add(AddressToCoordinates(item.id, coordinates[0], coordinates[1]))
+                coordinates = DbWorker.calculate_coordinates(
+                    item.city, item.street, item.number
+                )
+                session.add(
+                    AddressToCoordinates(item.id, coordinates[0], coordinates[1])
+                )
 
     @staticmethod
-    def calculate_coordinates(city, address, number_of_house):
+    def calculate_coordinates(city: str, street: str, number_of_house: int) -> Any:
         """Считаем координаты для адреса"""
         coordinates = []
-        print(address, number_of_house)
         with create_session() as session:
             item = (
                 session.query(AddressToPoints)
                 .filter(AddressToPoints.city == city)
-                .filter(AddressToPoints.street == address)
+                .filter(AddressToPoints.street == street)
                 .filter(AddressToPoints.number == number_of_house)
                 .first()
             )
@@ -79,7 +85,9 @@ class DbWorker:
             return Geometry.find_centroid(coordinates, len(coordinates))
 
     @staticmethod
-    def get_coordinates(city: str, street: str, number: str):
+    def get_coordinates(
+        city: str, street: str, number: str
+    ) -> Union[List[float], None]:
         """Получаем координаты по адресу"""
         with create_session() as session:
             item = (
@@ -105,7 +113,7 @@ class DbWorker:
             return [latitude, longitude]
 
     @staticmethod
-    def get_address(latitude, longitude):
+    def get_address(latitude: str, longitude: str) -> Union[Address, None]:
         """Получаем адрес по координатам"""
         try:
             latitude_f = float(latitude)
@@ -134,14 +142,14 @@ class DbWorker:
             city = getattr(address, 'city')
             street = getattr(address, 'street')
             number = getattr(address, 'number')
-            return Address(street, number, city)
+            return Address(street, number, city, '')
 
     @staticmethod
-    def create_db():
+    def create_db() -> None:
         """Подготавливаем базу для работы"""
         path = pathlib.Path(__file__).cwd() / 'data/Ekaterinburg.osm'
         try:
-            parser = OsmParser(path, [], 0)
+            parser = OsmParser(path, [])
             DbWorker.prepare_db(parser)
         except FileNotFoundError:
             print('Загрузите базу OSM!')

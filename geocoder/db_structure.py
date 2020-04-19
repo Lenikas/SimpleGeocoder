@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 engine = sa.create_engine('sqlite:///geocoder_base.sqlite')
 Session = sessionmaker(bind=engine)
-Base = declarative_base()
+Base: Any = declarative_base()
 
 
 @contextmanager
@@ -47,7 +47,7 @@ class PointToCoordinate(Base):
     latitude = sa.Column(sa.REAL, nullable=False)
     longitude = sa.Column(sa.REAL, nullable=False)
 
-    def __init__(self, point: int, latitude, longitude):
+    def __init__(self, point: int, latitude: float, longitude: float):
         self.point = point
         self.longitude = longitude
         self.latitude = latitude
@@ -63,7 +63,7 @@ class AddressToCoordinates(Base):
     latitude = sa.Column(sa.REAL)
     longitude = sa.Column(sa.REAL)
 
-    def __init__(self, address_id, latitude, longitude):
+    def __init__(self, address_id: int, latitude: float, longitude: float):
         self.address_id = address_id
         self.longitude = longitude
         self.latitude = latitude

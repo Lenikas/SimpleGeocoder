@@ -3,19 +3,20 @@ import re
 
 class Address:
     """Класс для внутреннего представления адреса"""
-
-    def __init__(self, street, number, city, references=None):
+    def __init__(self, street: str, number: str, city: str, points: str) -> None:
+        if points is None:
+            points = []
         self.street = street
         self.number = number
-        self.references = references
+        self.points = points
         self.city = city
 
     @property
-    def street(self):
+    def street(self) -> str:
         return self._address
 
     @street.setter
-    def street(self, address):
+    def street(self, address: str) -> None:
         words = [
             r'улица',
             'проспект',

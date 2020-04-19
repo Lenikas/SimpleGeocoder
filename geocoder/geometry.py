@@ -1,9 +1,11 @@
+from typing import Any
+
 import numpy
 
 
 class Geometry:
     @staticmethod
-    def find_centroid(coordinates, vertices_number):
+    def find_centroid(coordinates: numpy.array, vertices_number: int) -> Any:
         """Функция для поиска центра масс по набору координат"""
         xs = coordinates[:, 0]
         ys = coordinates[:, 1]
