@@ -1,21 +1,21 @@
 import re
 
 
-class Building:
-    """Класс для внутреннего представления объектов"""
+class Address:
+    """Класс для внутреннего представления адреса"""
 
-    def __init__(self, address, house_number, city, references=None):
-        self.address = address
-        self.house_number = house_number
+    def __init__(self, street, number, city, references=None):
+        self.street = street
+        self.number = number
         self.references = references
         self.city = city
 
     @property
-    def address(self):
+    def street(self):
         return self._address
 
-    @address.setter
-    def address(self, address):
+    @street.setter
+    def street(self, address):
         words = [
             r'улица',
             'проспект',
