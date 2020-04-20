@@ -30,25 +30,25 @@ class AddressToPoints(Base):
     city = sa.Column(sa.String, nullable=False)
     street = sa.Column(sa.String, nullable=False)
     number = sa.Column(sa.String, nullable=False)
-    points = sa.Column(sa.String, nullable=False)
+    links = sa.Column(sa.String, nullable=False)
 
-    def __init__(self, city: str, street: str, number: str, points: Any):
+    def __init__(self, city: str, street: str, number: str, links: Any):
         self.city = city
         self.street = street
         self.number = number
-        self.points = points
+        self.links = links
 
 
 class PointToCoordinate(Base):
     __tablename__ = 'point_to_coordinate'
 
     id = sa.Column(sa.Integer, primary_key=True, nullable=False)
-    point = sa.Column(sa.Integer, nullable=False)
+    link = sa.Column(sa.Integer, nullable=False)
     latitude = sa.Column(sa.REAL, nullable=False)
     longitude = sa.Column(sa.REAL, nullable=False)
 
     def __init__(self, point: int, latitude: float, longitude: float):
-        self.point = point
+        self.link = point
         self.longitude = longitude
         self.latitude = latitude
 

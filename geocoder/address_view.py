@@ -3,12 +3,13 @@ import re
 
 class Address:
     """Класс для внутреннего представления адреса"""
-    def __init__(self, street: str, number: str, city: str, points: str) -> None:
-        if points is None:
-            points = []
+
+    def __init__(self, street: str, number: str, city: str, links: str) -> None:
+        if links is None:
+            links = []
         self.street = street
         self.number = number
-        self.points = points
+        self.links = links
         self.city = city
 
     @property

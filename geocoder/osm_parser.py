@@ -1,26 +1,27 @@
 import pathlib
 import re
-from typing import List, Union, Any
+from typing import List, Union
 
 from geocoder.address_view import Address
-from geocoder.point_viev import Point
+from geocoder.point_viev import OsmPoint
 
 
 class OsmParser:
     """Методы для разбора osm данных"""
-    def __init__(self, filename: pathlib.Path, buffer: List[str]):
-        self.file_name = filename
+
+    def __init__(self, file_path: pathlib.Path, buffer: List[str]):
+        self.path = file_path
         self.buffer = buffer
 
     @staticmethod
-    def extract_coordinates_osm(data: str) -> Any:
+    def extract_coordinates_osm(data: str) -> OsmPoint:
         """Для каждой точки извлекаем широту и долготу"""
         s = re.findall(r'[0-9]{2}.[0-9]+', data)
         coordinates = [int(s[0]), float(s[6]), float(s[7])]
-        return coordinates[0], coordinates[1], coordinates[2]
+        return OsmPoint(coordinates[1], coordinates[2], int(coordinates[0]))
 
-    def extract_address_osm(
-        self, points: List[str], street: str, city: str, buffer_position: int
+    def prepare_address_osm(
+        self, links: List[str], street: str, city: str, buffer_position: int
     ) -> Union[Address, None]:
         """Извлекаем номер дома и его точки """
         house_number = None
@@ -31,14 +32,14 @@ class OsmParser:
             if re.match(r'<tag k="addr:city" v=', self.buffer[i]) is not None:
                 city = self.buffer[i][22:-3].capitalize()
             if re.match(r'<nd ref="', self.buffer[i]) is not None:
-                points.append(self.buffer[i][9:-3])
+                links.append(self.buffer[i][9:-3])
         if house_number is not None:
-            build = Address(street, house_number, city, ' '.join(points))
-            return build
+            address = Address(street, house_number, city, ' '.join(links))
+            return address
         return None
 
-    def get_address_osm(self, data: str, city: str) -> Union[Address, None]:
-        """Собираем адрес из данных осм формата"""
+    def extract_address_osm(self, data: str, city: str) -> Union[Address, None]:
+        """Собираем адрес из данных osm формата"""
         buffer_position = 0
         is_house = False
         for buffer_position in range(len(self.buffer) - 1, -1, -1):
@@ -46,24 +47,8 @@ class OsmParser:
                 is_house = True
                 break
         if is_house:
-            points: List[str] = []
+            links: List[str] = []
             street = data[24:-3]
-            address = self.extract_address_osm(points, street, city, buffer_position)
-            return address
-        return None
-
-    def process_point_data(self, string: str) -> Union[Point, None]:
-        """Обрабатываем входную строку c данными о точке из базы osm"""
-        if re.match(r'<node id="', string) is not None:
-            (point, latitude, longitude,) = self.extract_coordinates_osm(string)
-            return Point(point, latitude, longitude)
-        return None
-
-    def process_address_data(
-        self, string: str, current_city: str
-    ) -> Union[Address, None]:
-        """Обрабатываем входную строку c адресом из базы osm"""
-        if re.match(r'<tag k="addr:street" v="', string) is not None:
-            address = self.get_address_osm(string, current_city)
+            address = self.prepare_address_osm(links, street, city, buffer_position)
             return address
         return None

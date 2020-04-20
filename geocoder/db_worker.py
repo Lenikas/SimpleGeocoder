@@ -1,5 +1,6 @@
 import pathlib
-from typing import Any, List, Union
+import re
+from typing import Any, Union
 
 import numpy
 from geocoder.address_view import Address
@@ -9,8 +10,9 @@ from geocoder.db_structure import (
     PointToCoordinate,
     create_session,
 )
-from geocoder.geometry import Geometry
+from geocoder.geometry import find_centroid
 from geocoder.osm_parser import OsmParser
+from geocoder.point_viev import OsmPoint
 
 
 class DbWorker:
@@ -18,76 +20,80 @@ class DbWorker:
     def prepare_db(parser: OsmParser) -> None:
         """Наполняем базу данных"""
         with create_session() as session:
-            with open(str(parser.file_name), encoding='utf-8') as f:
+            with open(str(parser.path), encoding='utf-8') as f:
                 current_city = 'Екатеринбург'
                 for string in f:
                     string = string.lstrip()[:-1]
                     parser.buffer.append(string)
 
-                    point_data = parser.process_point_data(string)
-                    if point_data is not None:
-                        session.add(
-                            PointToCoordinate(
-                                point_data.point,
-                                point_data.latitude,
-                                point_data.longitude,
+                    if re.match(r'<node id="', string) is not None:
+                        point_data = parser.extract_coordinates_osm(string)
+                        if point_data is not None:
+                            session.add(
+                                PointToCoordinate(
+                                    point_data.link,
+                                    point_data.latitude,
+                                    point_data.longitude,
+                                )
                             )
-                        )
-                        continue
-                    address_data = parser.process_address_data(string, current_city)
-                    if address_data is not None:
-                        session.add(
-                            AddressToPoints(
-                                address_data.city,
-                                address_data.street,
-                                address_data.number,
-                                address_data.points,
+
+                    elif re.match(r'<tag k="addr:street" v="', string) is not None:
+                        address_data = parser.extract_address_osm(string, current_city)
+                        if address_data is not None:
+                            session.add(
+                                AddressToPoints(
+                                    address_data.city,
+                                    address_data.street,
+                                    address_data.number,
+                                    address_data.links,
+                                )
                             )
-                        )
-                        continue
+
+                    if len(parser.buffer) == 40:
+                        parser.buffer.pop(0)
+
                 session.commit()
-            for item in session.query(AddressToPoints).all():
-                coordinates = DbWorker.calculate_coordinates(
-                    item.city, item.street, item.number
-                )
-                session.add(
-                    AddressToCoordinates(item.id, coordinates[0], coordinates[1])
-                )
+                for item in session.query(AddressToPoints).all():
+                    coordinates_data = DbWorker.prepare_coordinates(
+                        item.city, item.street, item.number, session
+                    )
+                    point = find_centroid(coordinates_data, len(coordinates_data))
+                    session.add(
+                        AddressToCoordinates(item.id, point.latitude, point.longitude)
+                    )
 
     @staticmethod
-    def calculate_coordinates(city: str, street: str, number_of_house: int) -> Any:
+    def prepare_coordinates(city: str, street: str, number: int, session: Any) -> Any:
         """Считаем координаты для адреса"""
         coordinates = []
-        with create_session() as session:
-            item = (
-                session.query(AddressToPoints)
-                .filter(AddressToPoints.city == city)
-                .filter(AddressToPoints.street == street)
-                .filter(AddressToPoints.number == number_of_house)
+
+        item = (
+            session.query(AddressToPoints)
+            .filter(AddressToPoints.city == city)
+            .filter(AddressToPoints.street == street)
+            .filter(AddressToPoints.number == number)
+            .first()
+        )
+        if item is None:
+            return None
+        links = getattr(item, 'links')
+        list_links = []
+        for link in links.split():
+            list_links.append(int(link))
+        for i in list_links:
+            item_coord = (
+                session.query(PointToCoordinate)
+                .filter(PointToCoordinate.link == i)
                 .first()
             )
-            if item is None:
-                return None
-            points = getattr(item, 'points')
-            res = []
-            for link in points.split():
-                res.append(int(link))
-            for i in res:
-                item_coord = (
-                    session.query(PointToCoordinate)
-                    .filter(PointToCoordinate.point == i)
-                    .first()
-                )
-                latitude = getattr(item_coord, 'latitude')
-                longitude = getattr(item_coord, 'longitude')
-                coordinates.append([latitude, longitude])
-            coordinates = numpy.array(coordinates)
-            return Geometry.find_centroid(coordinates, len(coordinates))
+            latitude = getattr(item_coord, 'latitude')
+            longitude = getattr(item_coord, 'longitude')
+            coordinates.append([latitude, longitude])
+        coordinates = numpy.array(coordinates)
+        return coordinates
 
     @staticmethod
-    def get_coordinates(
-        city: str, street: str, number: str
-    ) -> Union[List[float], None]:
+    def get_coordinates(city: str, street: str, number: str) -> Union[OsmPoint, None]:
         """Получаем координаты по адресу"""
         with create_session() as session:
             item = (
@@ -110,7 +116,7 @@ class DbWorker:
             )
             latitude = getattr(coordinates, 'latitude')
             longitude = getattr(coordinates, 'longitude')
-            return [latitude, longitude]
+            return OsmPoint(latitude, longitude)
 
     @staticmethod
     def get_address(latitude: str, longitude: str) -> Union[Address, None]:
