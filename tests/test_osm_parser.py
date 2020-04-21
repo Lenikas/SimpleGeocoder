@@ -1,7 +1,7 @@
 import pathlib
 
 import pytest
-from geocoder.osm_parser import OsmParser
+from final_project.osm_parser import OsmParser
 
 
 @pytest.fixture()

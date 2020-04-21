@@ -2,10 +2,10 @@ import json
 from unittest.mock import patch
 
 import pytest
-from geocoder.address_view import Address
-from geocoder.app import server
-from geocoder.db_worker import DbWorker
-from geocoder.point_viev import OsmPoint
+from final_project.address_view import Address
+from final_project.app import server
+from final_project.db_worker import DbWorker
+from final_project.point_viev import OsmPoint
 
 
 @pytest.fixture()
@@ -23,7 +23,7 @@ def point():
 @patch.object(DbWorker, 'get_coordinates')
 def test_get_address_coordinate(mock, client, point):
     mock.return_value = point
-    response = client.get('/geocoder/api/v1.0/get_coord/City/Street/Number')
+    response = client.get('/final_project/api/v1.0/get_coord/City/Street/Number')
     data = json.loads(response.get_data())
     assert response.status_code == 200
     if point is None:
@@ -37,7 +37,7 @@ def test_get_address_coordinate(mock, client, point):
 @patch.object(DbWorker, 'get_address')
 def test_get_coordinate_address(mock, client, address):
     mock.return_value = address
-    response = client.get('/geocoder/api/v1.0/get_addr/latitude/longitude')
+    response = client.get('/final_project/api/v1.0/get_addr/latitude/longitude')
     data = json.loads(response.get_data())
     assert response.status_code == 200
     if address is None:

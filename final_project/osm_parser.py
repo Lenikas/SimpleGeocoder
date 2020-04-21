@@ -2,8 +2,8 @@ import pathlib
 import re
 from typing import List, Union
 
-from geocoder.address_view import Address
-from geocoder.point_viev import OsmPoint
+from final_project.address_view import Address
+from final_project.point_viev import OsmPoint
 
 
 class OsmParser:

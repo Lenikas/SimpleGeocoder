@@ -3,16 +3,16 @@ import re
 from typing import Any, Union
 
 import numpy
-from geocoder.address_view import Address
-from geocoder.db_structure import (
+from final_project.address_view import Address
+from final_project.db_structure import (
     AddressToCoordinates,
     AddressToPoints,
     PointToCoordinate,
     create_session,
 )
-from geocoder.geometry import find_centroid
-from geocoder.osm_parser import OsmParser
-from geocoder.point_viev import OsmPoint
+from final_project.geometry import find_centroid
+from final_project.osm_parser import OsmParser
+from final_project.point_viev import OsmPoint
 
 
 class DbWorker:

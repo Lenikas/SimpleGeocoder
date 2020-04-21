@@ -1,6 +1,6 @@
 import numpy
 import pytest
-from geocoder.geometry import find_centroid
+from final_project.geometry import find_centroid
 
 
 @pytest.mark.parametrize(

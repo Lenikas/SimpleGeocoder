@@ -1,5 +1,5 @@
-from geocoder.db_worker import DbWorker
-from geocoder.app import server
+from final_project.db_worker import DbWorker
+from final_project.app import server
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 import pytest
-from geocoder.point_viev import OsmPoint
+from final_project.point_viev import OsmPoint
 
 
 @pytest.fixture()
