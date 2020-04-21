@@ -1,7 +1,12 @@
 import pathlib
 
 import pytest
-from final_project.db_structure import AddressToCoordinates, Base, create_session, engine
+from final_project.db_structure import (
+    AddressToCoordinates,
+    Base,
+    create_session,
+    engine,
+)
 from final_project.db_worker import DbWorker
 from final_project.osm_parser import OsmParser
 

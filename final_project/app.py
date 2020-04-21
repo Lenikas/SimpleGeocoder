@@ -1,8 +1,8 @@
 import logging
 from typing import Any
 
-from flask import Flask, jsonify
 from final_project.db_worker import DbWorker
+from flask import Flask, jsonify
 
 server = Flask(__name__)
 logging.basicConfig(
@@ -14,7 +14,9 @@ logging.basicConfig(
 )
 
 
-@server.route('/final_project/api/v1.0/get_coord/<city>/<street>/<number>', methods=['GET'])
+@server.route(
+    '/final_project/api/v1.0/get_coord/<city>/<street>/<number>', methods=['GET']
+)
 def get_address_coordinate(city: str, street: str, number: str) -> Any:
     coordinates = DbWorker.get_coordinates(city, street, number)
     if coordinates is None:
@@ -30,7 +32,9 @@ def get_address_coordinate(city: str, street: str, number: str) -> Any:
     return jsonify({'Coordinates': response}), 200
 
 
-@server.route('/final_project/api/v1.0/get_addr/<latitude>/<longitude>', methods=['GET'])
+@server.route(
+    '/final_project/api/v1.0/get_addr/<latitude>/<longitude>', methods=['GET']
+)
 def get_coordinate_address(latitude: str, longitude: str) -> Any:
     address = DbWorker.get_address(latitude, longitude)
     if address is None:
