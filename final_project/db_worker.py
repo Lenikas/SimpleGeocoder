@@ -8,14 +8,18 @@ from final_project.db_structure import (
     AddressToCoordinates,
     AddressToPoints,
     PointToCoordinate,
+    User,
     create_session,
 )
 from final_project.geometry import find_centroid
 from final_project.osm_parser import OsmParser
 from final_project.point_viev import OsmPoint
+from sqlalchemy.exc import IntegrityError
 
 
 class DbWorker:
+    """Класс для подготовки базы данных для геокодирования и взаимодействия с этими данными"""
+
     @staticmethod
     def prepare_db(parser: OsmParser) -> None:
         """Наполняем базу данных"""
@@ -149,6 +153,23 @@ class DbWorker:
             street = getattr(address, 'street')
             number = getattr(address, 'number')
             return Address(street, number, city, '')
+
+    @staticmethod
+    def add_user(username: str, password: str) -> Union[None, str]:
+        try:
+            with create_session() as session:
+                session.add(User(username, password))
+            return username
+        except IntegrityError:
+            return None
+
+    @staticmethod
+    def get_password(username: str) -> str:
+        with create_session() as session:
+            return getattr(
+                session.query(User).filter(User.username == username).first(),
+                'password',
+            )
 
     @staticmethod
     def create_db() -> None:

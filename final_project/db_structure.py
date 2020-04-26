@@ -24,6 +24,8 @@ def create_session(**kwargs: Any) -> Any:
 
 
 class AddressToPoints(Base):
+    """Вспомогательная таблица сырых данных, используется только для построения основных таблиц"""
+
     __tablename__ = 'address_to_points'
 
     id = sa.Column(sa.Integer, primary_key=True, nullable=False)
@@ -67,6 +69,18 @@ class AddressToCoordinates(Base):
         self.address_id = address_id
         self.longitude = longitude
         self.latitude = latitude
+
+
+class User(Base):
+    __tablename__ = 'user'
+
+    id = sa.Column(sa.Integer, primary_key=True, nullable=False)
+    username = sa.Column(sa.String, nullable=False, unique=True)
+    password = sa.Column(sa.String, nullable=False, unique=True)
+
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
 
 
 Base.metadata.create_all(engine)
