@@ -3,7 +3,7 @@ import re
 from typing import Any, List, Tuple, Union
 
 import numpy
-from final_project.db_utils.db_structure import (
+from final_project.db_structure import (
     AddressToCoordinates,
     AddressToPoints,
     PointToCoordinate,

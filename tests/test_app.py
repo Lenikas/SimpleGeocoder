@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 from final_project.app import server
-from final_project.db_utils.db_worker import DbWorker
+from final_project.db_worker import DbWorker
 from final_project.view_utils.address_view import Address
 from final_project.view_utils.point_viev import OsmPoint
 

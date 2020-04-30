@@ -1,13 +1,13 @@
 import pathlib
 
 import pytest
-from final_project.db_utils.db_structure import (
+from final_project.db_structure import (
     AddressToCoordinates,
     Base,
     create_session,
     engine,
 )
-from final_project.db_utils.db_worker import DbWorker
+from final_project.db_worker import DbWorker
 from final_project.osm_parser.osm_parser import OsmParser
 from final_project.view_utils.address_view import Address
 

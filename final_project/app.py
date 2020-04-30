@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Union
 
-from final_project.db_utils.db_worker import DbWorker
+from final_project.db_worker import DbWorker
 from final_project.view_utils.address_view import Address
 from flask import Flask, jsonify, make_response, request
 from flask_httpauth import HTTPBasicAuth
