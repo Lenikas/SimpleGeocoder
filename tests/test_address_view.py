@@ -1,5 +1,5 @@
 import pytest
-from final_project.address_view import Address
+from final_project.view_utils.address_view import Address
 
 
 @pytest.fixture()

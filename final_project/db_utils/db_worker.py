@@ -1,19 +1,20 @@
 import pathlib
 import re
-from typing import Any, Union
+from typing import Any, List, Tuple, Union
 
 import numpy
-from final_project.address_view import Address
-from final_project.db_structure import (
+from final_project.db_utils.db_structure import (
     AddressToCoordinates,
     AddressToPoints,
     PointToCoordinate,
     User,
+    UsersData,
     create_session,
 )
-from final_project.geometry import find_centroid
-from final_project.osm_parser import OsmParser
-from final_project.point_viev import OsmPoint
+from final_project.geometry_utils.geometry import find_centroid
+from final_project.osm_parser.osm_parser import OsmParser
+from final_project.view_utils.address_view import Address
+from final_project.view_utils.point_viev import OsmPoint
 from sqlalchemy.exc import IntegrityError
 
 
@@ -55,7 +56,6 @@ class DbWorker:
 
                     if len(parser.buffer) == 40:
                         parser.buffer.pop(0)
-
                 session.commit()
                 for item in session.query(AddressToPoints).all():
                     coordinates_data = DbWorker.prepare_coordinates(
@@ -164,12 +164,59 @@ class DbWorker:
             return None
 
     @staticmethod
-    def get_password(username: str) -> str:
+    def get_password(username: str) -> Union[str, None]:
         with create_session() as session:
-            return getattr(
-                session.query(User).filter(User.username == username).first(),
-                'password',
+            user = session.query(User).filter(User.username == username).first()
+            if user is None:
+                return None
+            return getattr(user, 'password',)
+
+    @staticmethod
+    def add_data_to_user(username: str, address: Address) -> bool:
+        with create_session() as session:
+            user_record = session.query(User).filter(User.username == username).first()
+            address_record = (
+                session.query(AddressToPoints)
+                .filter(AddressToPoints.street == address.street)
+                .filter(AddressToPoints.number == address.number)
+                .first()
             )
+
+            if address_record is None:
+                return False
+
+            session.add(UsersData(user_record.id, address_record.id))
+            return True
+
+    @staticmethod
+    def get_user_data(username: str) -> List[Tuple[Address, OsmPoint]]:
+        data_with_coordinate = []
+        with create_session() as session:
+            user_record = session.query(User).filter(User.username == username).first()
+            user_addresses = (
+                session.query(UsersData)
+                .filter(UsersData.user_id == user_record.id)
+                .all()
+            )
+            for item in user_addresses:
+                data = (
+                    session.query(AddressToPoints)
+                    .filter(AddressToPoints.id == item.id)
+                    .first()
+                )
+                coordinates = (
+                    session.query(AddressToCoordinates)
+                    .filter(AddressToCoordinates.address_id == item.id)
+                    .first()
+                )
+                data_with_coordinate.append(
+                    (
+                        Address(data.street, data.number, data.city, ''),
+                        OsmPoint(coordinates.latitude, coordinates.longitude),
+                    )
+                )
+
+        return data_with_coordinate
 
     @staticmethod
     def create_db() -> None:

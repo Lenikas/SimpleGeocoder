@@ -1,5 +1,5 @@
 import pytest
-from final_project.point_viev import OsmPoint
+from final_project.view_utils.point_viev import OsmPoint
 
 
 @pytest.fixture()

@@ -2,8 +2,8 @@ import pathlib
 import re
 from typing import List, Union
 
-from final_project.address_view import Address
-from final_project.point_viev import OsmPoint
+from final_project.view_utils.address_view import Address
+from final_project.view_utils.point_viev import OsmPoint
 
 
 class OsmParser:

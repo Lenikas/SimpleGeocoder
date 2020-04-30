@@ -1,7 +1,7 @@
 import pathlib
 
 import pytest
-from final_project.osm_parser import OsmParser
+from final_project.osm_parser.osm_parser import OsmParser
 
 
 @pytest.fixture()
@@ -40,7 +40,3 @@ def test_extract_coordinates_osm(parser, data_coordinate):
     assert result.link == 176197027
     assert result.latitude == 56.8389083
     assert result.longitude == 60.5902521
-
-
-def test_get_address_osm(parser, data_address):
-    pass

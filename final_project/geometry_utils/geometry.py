@@ -1,5 +1,5 @@
 import numpy
-from final_project.point_viev import OsmPoint
+from final_project.view_utils.point_viev import OsmPoint
 
 
 def find_centroid(coordinates: numpy.array, vertices_number: int) -> OsmPoint:
