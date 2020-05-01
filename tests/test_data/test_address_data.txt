@@ -1,0 +1,20 @@
+<way id="38464427" visible="true" version="15" changeset="52131102" timestamp="2017-09-18T03:40:28Z" user="Alexandr Ivanov" uid="297300">
+  <nd ref="1522763392"/>
+  <nd ref="1522763399"/>
+  <nd ref="454767081"/>
+  <nd ref="454767080"/>
+  <nd ref="1522763394"/>
+  <nd ref="454767051"/>
+  <nd ref="1522763387"/>
+  <nd ref="454767048"/>
+  <nd ref="1522763392"/>
+  <tag k="addr:city" v="Екатеринбург"/>
+  <tag k="addr:country" v="RU"/>
+  <tag k="addr:housenumber" v="25"/>
+  <tag k="addr:postcode" v="620014"/>
+  <tag k="addr:street" v="проспект Ленина"/>
+  <tag k="building" v="commercial"/>
+  <tag k="building:levels" v="7"/>
+  <tag k="name" v="Европа"/>
+  <tag k="shop" v="mall"/>
+ </way>

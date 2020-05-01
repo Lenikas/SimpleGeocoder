@@ -1,0 +1,1 @@
+<node id="176197027" visible="true" version="11" changeset="41922407" timestamp="2016-09-05T06:51:07Z" user="Ilis" uid="127170" lat="56.8389083" lon="60.5902521
